@@ -1,0 +1,125 @@
+#Create Nodes for Student, College & Courses
+LOAD CSV WITH HEADERS FROM 'file:///person.csv' AS row RETURN row
+CREATE (:Student {
+    studentID: toInteger(row.studentID),
+    name: row.Name,
+    age: toInteger(row.Age)
+})
+MERGE (:College {name: row.College})
+MERGE (:courses {name: row.offer})
+
+#Creating Relationship between Student & College Nodes
+LOAD CSV WITH HEADERS FROM 'file:///person.csv' AS row
+MATCH (student:Student {name: row.Name})
+MATCH (college:College {name: row.College})
+MERGE (student)-[:STUDYING_IN]->(college)
+
+
+
+#Creating Relationship between College & Courses offered by the college
+LOAD CSV WITH HEADERS FROM 'file:///person.csv' AS row
+MATCH (courses:courses  {name: row.offer})
+MATCH (college:College {name: row.College})
+MERGE (college)-[:provides]->(courses)
+
+#Creating Relationship between Student & Courses Enrolled
+LOAD CSV WITH HEADERS FROM 'file:///person.csv' AS row
+MATCH (c:Student {name: row.Name})
+MATCH (en:courses {name: row.offer})
+MERGE (c)-[:Enrolled_In]->(en)
+
+# Creating Relationship between referrer and referee
+LOAD CSV WITH HEADERS FROM 'file:///person.csv' AS row
+MATCH (student:Student {name: row.Name})
+MATCH (referrer:Student {name: row.`Refered By`})
+MERGE (student)-[:REFERRED_BY]->(referrer)
+
+
+
+
+
+
+#Create Person, City, and Hobby Nodes
+// Create Person nodes
+CREATE (:Person {name: 'Alice', age: 30})
+CREATE (:Person {name: 'Bob', age: 35})
+CREATE (:Person {name: 'Charlie', age: 28})
+// Create City nodes
+CREATE (:City {name: 'London'})
+CREATE (:City {name: 'New York'})
+CREATE (:City {name: 'Paris'})
+// Create Hobby nodes
+CREATE (:Hobby {name: 'Reading'})
+CREATE (:Hobby {name: 'Hiking'})
+CREATE (:Hobby {name: 'Painting'})
+
+#Define Relationships
+// Define relationships
+// Alice lives in London and likes Reading
+CREATE (alice)-[:LIVES_IN]->(london)
+CREATE (alice)-[:LIKES]->(reading)
+// Bob lives in New York and likes Hiking
+CREATE (bob)-[:LIVES_IN]->(newYork)
+CREATE (bob)-[:LIKES]->(hiking)
+// Charlie lives in Paris and likes Painting
+CREATE (charlie)-[:LIVES_IN]->(paris)
+CREATE (charlie)-[:LIKES]->(painting)
+
+#Add New Nodes and Relationships
+// Create a new person
+CREATE (:Person {name: 'David', age: 25})
+// Create a new city
+CREATE (:City {name: 'Berlin'})
+// Create a new hobby
+CREATE (:Hobby {name: 'Gardening'})
+// Create a relationship: David lives in Berlin and likes Gardening
+CREATE (david)-[:LIVES_IN]->(berlin)
+CREATE (david)-[:LIKES]->(gardening)
+
+#Retrieve Data
+// Retrieve all persons
+MATCH (p:Person)
+RETURN p
+
+#
+// Retrieve all cities
+MATCH (c:City)
+RETURN c
+
+#
+// Retrieve all hobbies
+MATCH (h:Hobby)
+RETURN h
+
+#
+MATCH (n)
+OPTIONAL MATCH (n)-[r]->(m)
+RETURN n, r, m
+
+#Update Data
+// Update Alice's age
+MATCH (alice:Person {name: 'Alice'})
+SET alice.age = 31
+
+#Modify Relationships
+// Add a new hobby for Bob
+MATCH (bob:Person {name: 'Bob'})
+MERGE (hiking:Hobby {name: 'Hiking'})
+CREATE (bob)-[:LIKES]->(hiking)
+
+#Delete Nodes and Relationships
+// Delete a specific person (e.g., David) and all relationships associated with them
+MATCH (david:Person {name: 'David'})
+DETACH DELETE david
+
+// Delete a specific city (e.g., Berlin) and all relationships associated with it
+MATCH (berlin:City {name: 'Berlin'})
+DETACH DELETE berlin
+
+
+// Delete a specific hobby (e.g., Gardening) and all relationships associated with it
+MATCH (gardening:Hobby {name: 'Gardening'})
+DETACH DELETE gardening
+
+
+
